@@ -32,8 +32,9 @@ func init() {
 func TestContenderReleasePhaseIsWaitingForCommandForInitialStepState(t *testing.T) {
 	f := newFixture(t)
 
-	contender := buildContender()
-	incumbent := buildIncumbent()
+	totalReplicaCount := uint(10)
+	contender := buildContender(totalReplicaCount)
+	incumbent := buildIncumbent(totalReplicaCount)
 
 	// Strategy specifies that step 0 the contender has a minimum number of pods
 	// (1), no traffic yet.
@@ -49,8 +50,9 @@ func TestContenderReleasePhaseIsWaitingForCommandForInitialStepState(t *testing.
 func TestContenderDoNothingClusterInstallationNotReady(t *testing.T) {
 	f := newFixture(t)
 
-	contender := buildContender()
-	incumbent := buildIncumbent()
+	totalReplicaCount := uint(10)
+	contender := buildContender(totalReplicaCount)
+	incumbent := buildIncumbent(totalReplicaCount)
 
 	addCluster(contender, "broken-installation-cluster")
 
@@ -70,8 +72,9 @@ func TestContenderDoNothingClusterInstallationNotReady(t *testing.T) {
 func TestContenderDoNothingClusterCapacityNotReady(t *testing.T) {
 	f := newFixture(t)
 
-	contender := buildContender()
-	incumbent := buildIncumbent()
+	totalReplicaCount := uint(10)
+	contender := buildContender(totalReplicaCount)
+	incumbent := buildIncumbent(totalReplicaCount)
 
 	brokenClusterName := "broken-capacity-cluster"
 	addCluster(contender, brokenClusterName)
@@ -105,8 +108,9 @@ func TestContenderDoNothingClusterCapacityNotReady(t *testing.T) {
 func TestContenderDoNothingClusterTrafficNotReady(t *testing.T) {
 	f := newFixture(t)
 
-	contender := buildContender()
-	incumbent := buildIncumbent()
+	totalReplicaCount := uint(10)
+	contender := buildContender(totalReplicaCount)
+	incumbent := buildIncumbent(totalReplicaCount)
 
 	brokenClusterName := "broken-traffic-cluster"
 	addCluster(contender, brokenClusterName)
@@ -139,8 +143,9 @@ func TestContenderDoNothingClusterTrafficNotReady(t *testing.T) {
 func TestContenderCapacityShouldIncrease(t *testing.T) {
 	f := newFixture(t)
 
-	contender := buildContender()
-	incumbent := buildIncumbent()
+	totalReplicaCount := uint(10)
+	contender := buildContender(totalReplicaCount)
+	incumbent := buildIncumbent(totalReplicaCount)
 
 	contender.release.Spec.TargetStep = 1
 
@@ -148,7 +153,7 @@ func TestContenderCapacityShouldIncrease(t *testing.T) {
 
 	ct := contender.capacityTarget.DeepCopy()
 	r := contender.release.DeepCopy()
-	f.expectCapacityStatusPatch(ct, r, 50, Contender)
+	f.expectCapacityStatusPatch(ct, r, 50, totalReplicaCount, Contender)
 	f.run()
 }
 
@@ -162,8 +167,9 @@ const (
 func TestContenderTrafficShouldIncrease(t *testing.T) {
 	f := newFixture(t)
 
-	contender := buildContender()
-	incumbent := buildIncumbent()
+	totalReplicaCount := uint(10)
+	contender := buildContender(totalReplicaCount)
+	incumbent := buildIncumbent(totalReplicaCount)
 
 	contender.release.Spec.TargetStep = 1
 	contender.capacityTarget.Spec.Clusters[0].Percent = 50
@@ -180,8 +186,9 @@ func TestContenderTrafficShouldIncrease(t *testing.T) {
 func TestIncumbentTrafficShouldDecrease(t *testing.T) {
 	f := newFixture(t)
 
-	contender := buildContender()
-	incumbent := buildIncumbent()
+	totalReplicaCount := uint(10)
+	contender := buildContender(totalReplicaCount)
+	incumbent := buildIncumbent(totalReplicaCount)
 
 	contender.release.Spec.TargetStep = 1
 	contender.capacityTarget.Spec.Clusters[0].Percent = 50
@@ -200,8 +207,9 @@ func TestIncumbentTrafficShouldDecrease(t *testing.T) {
 func TestIncumbentCapacityShouldDecrease(t *testing.T) {
 	f := newFixture(t)
 
-	contender := buildContender()
-	incumbent := buildIncumbent()
+	totalReplicaCount := uint(10)
+	contender := buildContender(totalReplicaCount)
+	incumbent := buildIncumbent(totalReplicaCount)
 
 	contender.release.Spec.TargetStep = 1
 	contender.capacityTarget.Spec.Clusters[0].Percent = 50
@@ -215,15 +223,16 @@ func TestIncumbentCapacityShouldDecrease(t *testing.T) {
 
 	tt := incumbent.capacityTarget.DeepCopy()
 	r := contender.release.DeepCopy()
-	f.expectCapacityStatusPatch(tt, r, 50, Incumbent)
+	f.expectCapacityStatusPatch(tt, r, 50, totalReplicaCount, Incumbent)
 	f.run()
 }
 
 func TestContenderReleasePhaseIsWaitingForCommandForFinalStepState(t *testing.T) {
 	f := newFixture(t)
 
-	contender := buildContender()
-	incumbent := buildIncumbent()
+	totalReplicaCount := uint(10)
+	contender := buildContender(totalReplicaCount)
+	incumbent := buildIncumbent(totalReplicaCount)
 
 	contender.release.Spec.TargetStep = 1
 	contender.capacityTarget.Spec.Clusters[0].Percent = 50
@@ -245,8 +254,9 @@ func TestContenderReleasePhaseIsWaitingForCommandForFinalStepState(t *testing.T)
 func TestContenderReleaseIsInstalled(t *testing.T) {
 	f := newFixture(t)
 
-	contender := buildContender()
-	incumbent := buildIncumbent()
+	totalReplicaCount := uint(10)
+	contender := buildContender(totalReplicaCount)
+	incumbent := buildIncumbent(totalReplicaCount)
 
 	contender.release.Spec.TargetStep = 2
 	contender.capacityTarget.Spec.Clusters[0].Percent = 100
@@ -272,8 +282,9 @@ func workingOnContenderCapacity(percent int, wg *sync.WaitGroup, t *testing.T) {
 
 	f := newFixture(t)
 
-	contender := buildContender()
-	incumbent := buildIncumbent()
+	totalReplicaCount := uint(10)
+	contender := buildContender(totalReplicaCount)
+	incumbent := buildIncumbent(totalReplicaCount)
 
 	contender.release.Spec.TargetStep = 1
 
@@ -293,8 +304,9 @@ func workingOnContenderTraffic(percent int, wg *sync.WaitGroup, t *testing.T) {
 
 	f := newFixture(t)
 
-	contender := buildContender()
-	incumbent := buildIncumbent()
+	totalReplicaCount := uint(10)
+	contender := buildContender(totalReplicaCount)
+	incumbent := buildIncumbent(totalReplicaCount)
 
 	contender.release.Spec.TargetStep = 1
 
@@ -319,8 +331,9 @@ func workingOnIncumbentTraffic(percent int, wg *sync.WaitGroup, t *testing.T) {
 
 	f := newFixture(t)
 
-	contender := buildContender()
-	incumbent := buildIncumbent()
+	totalReplicaCount := uint(10)
+	contender := buildContender(totalReplicaCount)
+	incumbent := buildIncumbent(totalReplicaCount)
 
 	contender.release.Spec.TargetStep = 1
 
@@ -348,8 +361,9 @@ func workingOnIncumbentCapacity(percent int, wg *sync.WaitGroup, t *testing.T) {
 
 	f := newFixture(t)
 
-	contender := buildContender()
-	incumbent := buildIncumbent()
+	totalReplicaCount := uint(10)
+	contender := buildContender(totalReplicaCount)
+	incumbent := buildIncumbent(totalReplicaCount)
 
 	contender.release.Spec.TargetStep = 1
 
@@ -508,12 +522,12 @@ func (f *fixture) run() {
 	shippertesting.CheckEvents(f.expectedOrderedEvents, f.receivedEvents, f.t)
 }
 
-func (f *fixture) expectCapacityStatusPatch(ct *shipperV1.CapacityTarget, r *shipperV1.Release, value uint, role role) {
+func (f *fixture) expectCapacityStatusPatch(ct *shipperV1.CapacityTarget, r *shipperV1.Release, value uint, totalReplicaCount uint, role role) {
 	gvr := shipperV1.SchemeGroupVersion.WithResource("capacitytargets")
 	newSpec := map[string]interface{}{
 		"spec": shipperV1.CapacityTargetSpec{
 			Clusters: []shipperV1.ClusterCapacityTarget{
-				{Name: "minikube", Percent: int32(value)},
+				{Name: "minikube", Percent: int32(value), TotalReplicaCount: int32(totalReplicaCount)},
 			},
 		},
 	}
