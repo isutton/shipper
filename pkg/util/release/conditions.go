@@ -11,6 +11,12 @@ import (
 
 var ConditionsShouldDiscardTimestamps = false
 
+const (
+	NotReachableReason = "NotReachable"
+	BadSyntaxReason    = "BadSyntax"
+	BadObjectsReason   = "BadObjects"
+)
+
 func NewReleaseCondition(condType shipper.ReleaseConditionType, status coreV1.ConditionStatus, reason, message string) *shipper.ReleaseCondition {
 	now := metaV1.Now()
 	if ConditionsShouldDiscardTimestamps {
@@ -50,7 +56,7 @@ func GetReleaseCondition(status shipper.ReleaseStatus, condType shipper.ReleaseC
 	return nil
 }
 
-func RemoveReleaseCondition(status shipper.ReleaseStatus, condType shipper.ReleaseConditionType) {
+func RemoveReleaseCondition(status *shipper.ReleaseStatus, condType shipper.ReleaseConditionType) {
 	status.Conditions = filterOutCondition(status.Conditions, condType)
 }
 
