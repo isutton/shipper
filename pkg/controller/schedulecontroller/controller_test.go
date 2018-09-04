@@ -5,7 +5,6 @@ import (
 	"time"
 
 	shipperV1 "github.com/bookingcom/shipper/pkg/apis/shipper/v1"
-	"github.com/bookingcom/shipper/pkg/chart"
 	shipperfake "github.com/bookingcom/shipper/pkg/client/clientset/versioned/fake"
 	shipperinformers "github.com/bookingcom/shipper/pkg/client/informers/externalversions"
 	shippertesting "github.com/bookingcom/shipper/pkg/testing"
@@ -29,7 +28,7 @@ func newController(fixtures ...runtime.Object) (*Controller, *shipperfake.Client
 	c := NewController(
 		shipperclient,
 		informerFactory,
-		chart.FetchRemote(),
+		chartFetchFunc,
 		record.NewFakeRecorder(42),
 	)
 
@@ -45,6 +44,7 @@ func newController(fixtures ...runtime.Object) (*Controller, *shipperfake.Client
 func TestControllerComputeTargetClusters(t *testing.T) {
 	cluster := buildCluster("minikube-a")
 	release := buildRelease()
+	release.Environment.Chart.RepoURL = "localhost"
 	fixtures := []runtime.Object{cluster, release}
 
 	// Expected values. The release should have, at the end of the business logic,
@@ -77,6 +77,7 @@ func TestControllerComputeTargetClusters(t *testing.T) {
 func TestControllerCreateAssociatedObjects(t *testing.T) {
 	cluster := buildCluster("minikube-a")
 	release := buildRelease()
+	release.Environment.Chart.RepoURL = "localhost"
 	release.Annotations[shipperV1.ReleaseClustersAnnotation] = cluster.GetName()
 	fixtures := []runtime.Object{release, cluster}
 
@@ -104,6 +105,7 @@ func TestControllerCreateAssociatedObjects(t *testing.T) {
 func TestControllerCreateAssociatedObjectsDuplicateInstallationTarget(t *testing.T) {
 	cluster := buildCluster("minikube-a")
 	release := buildRelease()
+	release.Environment.Chart.RepoURL = "localhost"
 	release.Annotations[shipperV1.ReleaseClustersAnnotation] = cluster.GetName()
 	installationtarget := &shipperV1.InstallationTarget{
 		ObjectMeta: metaV1.ObjectMeta{
@@ -138,6 +140,7 @@ func TestControllerCreateAssociatedObjectsDuplicateTrafficTarget(t *testing.T) {
 	// Fixtures
 	cluster := buildCluster("minikube-a")
 	release := buildRelease()
+	release.Environment.Chart.RepoURL = "localhost"
 	release.Annotations[shipperV1.ReleaseClustersAnnotation] = cluster.GetName()
 	traffictarget := &shipperV1.TrafficTarget{
 		ObjectMeta: metaV1.ObjectMeta{
@@ -171,6 +174,7 @@ func TestControllerCreateAssociatedObjectsDuplicateTrafficTarget(t *testing.T) {
 func TestControllerCreateAssociatedObjectsDuplicateCapacityTarget(t *testing.T) {
 	cluster := buildCluster("minikube-a")
 	release := buildRelease()
+	release.Environment.Chart.RepoURL = "localhost"
 	release.Annotations[shipperV1.ReleaseClustersAnnotation] = cluster.GetName()
 	capacitytarget := &shipperV1.CapacityTarget{
 		ObjectMeta: metaV1.ObjectMeta{
